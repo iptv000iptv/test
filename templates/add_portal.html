@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Add Portal - IPTV Manager{% endblock %}
+{% block page_title %}Add New Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>Portal Configuration
+                </h5>
+                <small class="text-muted">Configure your IPTV portal with all authentication parameters</small>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="portalForm">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="name" class="form-label">
+                                <i class="fas fa-tag me-2"></i>Portal Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name" required 
+                                   placeholder="e.g., My IPTV Portal">
+                            <div class="form-text">Choose a descriptive name for this portal</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="url" class="form-label">
+                                <i class="fas fa-link me-2"></i>Portal URL <span class="text-danger">*</span>
+                            </label>
+                            <input type="url" class="form-control" id="url" name="url" required 
+                                   placeholder="http://your-portal-url.com/stalker_portal/c">
+                            <div class="form-text">Complete URL to your IPTV portal (without trailing slash)</div>
+                        </div>

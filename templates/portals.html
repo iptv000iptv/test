@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Portals - IPTV Manager{% endblock %}
+{% block page_title %}Portal Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-muted">Manage your IPTV portals with full authentication support</p>
+    </div>
+    <a href="{{ url_for('add_portal') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Portal
+    </a>
+</div>
+
+{% if portals %}
+<div class="row">
+    {% for portal in portals %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card portal-card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold">{{ portal[1] }}</h6>
+                <span class="badge bg-{{ 'success' if portal[8] else 'secondary' }}">
+                    {{ 'Active' if portal[8] else 'Inactive' }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Portal URL:</small>
+                    <div class="text-truncate">
+                        <code>{{ portal[2] }}</code>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">MAC Address:</small>
+                        <div>
+                            {% if portal[3] %}
+                                <code>{{ portal[3] }}</code>
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Serial Number:</small>
+                        <div>
+                            {% if portal[4] %}
+                                <code>{{ portal[4] }}</code>
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Device ID:</small>
+                        <div>
+                            {% if portal[5] %}
+                                <code>{{ portal[5][:10] }}{% if portal[5]|length > 10 %}...{% endif %}</code>
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Device ID2:</small>
+                        <div>
+                            {% if portal[6] %}
+                                <code>{{ portal[6][:10] }}{% if portal[6]|length > 10 %}...{% endif %}</code>
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Signature:</small>
+                    <div>
+                        {% if portal[7] %}
+                            <code>{{ portal[7][:20] }}{% if portal[7]|length > 20 %}...{% endif %}</code>
+                        {% else %}
+                            <span class="text-muted">Auto-generated</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Added:</small>
+                    <div>{{ portal[9] }}</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="btn btn-outline-primary btn-sm w-100" onclick="testPortal({{ portal[0] }})">
+                            <i class="fas fa-vial me-1"></i>Test
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('channels', portal_id=portal[0]) }}" class="btn btn-outline-success btn-sm w-100">
+                            <i class="fas fa-list me-1"></i>Channels
+                        </a>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-6">
+                        <a href="{{ url_for('generate_m3u', portal_id=portal[0]) }}" class="btn btn-outline-info btn-sm w-100">
+                            <i class="fas fa-download me-1"></i>M3U
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-danger btn-sm w-100" onclick="deletePortal({{ portal[0] }}, '{{ portal[1] }}')">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination would go here if needed -->
+<div class="d-flex justify-content-center mt-4">
+    <nav aria-label="Portal pagination">
+        <!-- Pagination controls -->
+    </nav>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-server fa-4x text-muted mb-4"></i>
+    <h4>No Portals Found</h4>
+    <p class="text-muted mb-4">You haven't added any IPTV portals yet. Add your first portal to get started.</p>
+    <a href="{{ url_for('add_portal') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-plus me-2"></i>Add Your First Portal
+    </a>
+</div>
+{% endif %}
+
+<!-- Test Result Modal -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Portal Test Result</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="testResult">
+                <!-- Test result will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the portal "<span id="portalName"></span>"?</p>
+                <p class="text-muted small">This action cannot be undone and will also delete all associated channels.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete Portal</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testPortal(portalId) {
+    const modal = new bootstrap.Modal(document.getElementById('testModal'));
+    const resultDiv = document.getElementById('testResult');
+    
+    resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-2">Testing portal connection...</p></div>';
+    modal.show();
+    
+    fetch(`/test_portal/${portalId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Connection Successful!</strong>
+                        <p class="mb-0 mt-2">${data.message}</p>
+                        ${data.token ? `<hr><small><strong>Token:</strong> ${data.token.substring(0, 30)}...</small>` : ''}
+                        ${data.random ? `<br><small><strong>Random:</strong> ${data.random}</small>` : ''}
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Connection Failed!</strong>
+                        <p class="mb-0 mt-2">${data.message}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Error!</strong>
+                    <p class="mb-0 mt-2">Failed to test portal: ${error.message}</p>
+                </div>
+            `;
+        });
+}
+
+function deletePortal(portalId, portalName) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    document.getElementById('portalName').textContent = portalName;
+    modal.show();
+    
+    document.getElementById('confirmDelete').onclick = function() {
+        // This would need to be implemented in the backend
+        fetch(`/delete_portal/${portalId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to delete portal: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error deleting portal: ' + error.message);
+            });
+        modal.hide();
+    };
+}
+
+// Auto-refresh portal status every 5 minutes
+setInterval(function() {
+    // This could be implemented to check portal status
+    console.log('Portal status check...');
+}, 300000);
+</script>
+{% endblock %}

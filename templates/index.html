@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Manager - Home</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="hero-card p-5">
+                    <div class="text-center mb-5">
+                        <h1 class="display-4 fw-bold text-primary mb-3">
+                            <i class="fas fa-tv me-3"></i>IPTV Manager
+                        </h1>
+                        <p class="lead text-muted">
+                            Advanced IPTV Portal Management System with comprehensive authentication support
+                        </p>
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <h5>Portal Management</h5>
+                            <p class="text-muted">Manage multiple IPTV portals with full authentication support including MAC, SN, Device IDs, and Signatures</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h5>Secure Authentication</h5>
+                            <p class="text-muted">Advanced portal authentication with support for all major IPTV portal authentication methods</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <h5>Channel Streaming</h5>
+                            <p class="text-muted">Stream channels directly through the web interface with built-in video player</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Portal Authentication</h6>
+                            <ul class="list-unstyled ms-4">
+                                <li>• Portal Name & URL</li>
+                                <li>• MAC Address</li>
+                                <li>• Serial Number (SN)</li>
+                                <li>• Device ID & Device ID2</li>
+                                <li>• Custom Signatures</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Features</h6>
+                            <ul class="list-unstyled ms-4">
+                                <li>• Real-time portal testing</li>
+                                <li>• Channel management</li>
+                                <li>• M3U playlist generation</li>
+                                <li>• Web-based player</li>
+                                <li>• SQLite database storage</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        {% if session.user_id %}
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login to Start
+                            </a>
+                        {% endif %}
+                        <a href="#features" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-info-circle me-2"></i>Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row justify-content-center mt-5" id="features">
+            <div class="col-lg-10">
+                <div class="hero-card p-4">
+                    <h3 class="text-center mb-4">System Requirements & Setup</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Installation</h6>
+                            <pre class="bg-light p-3 rounded"><code>pip install -r requirements.txt
+python app.py</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Default Login</h6>
+                            <p>Username: <code>admin</code><br>
+                            Password: <code>admin</code></p>
+                            <small class="text-muted">Please change default credentials after first login</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>

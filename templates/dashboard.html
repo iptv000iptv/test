@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - IPTV Manager{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Portals</h5>
+                        <h2 class="mb-0">{{ portals|length }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-server fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Active Portals</h5>
+                        <h2 class="mb-0" id="activePortals">{{ portals|selectattr('8', 'equalto', 1)|list|length }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Channels</h5>
+                        <h2 class="mb-0" id="totalChannels">0</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-play-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Status</h5>
+                        <h6 class="mb-0">System Online</h6>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-heartbeat fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-server me-2"></i>Portal Overview
+                </h5>
+                <a href="{{ url_for('add_portal') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-2"></i>Add Portal
+                </a>
+            </div>
+            <div class="card-body">
+                {% if portals %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>URL</th>
+                                    <th>MAC</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for portal in portals %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ portal[1] }}</strong>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ portal[2][:50] }}{% if portal[2]|length > 50 %}...{% endif %}</small>
+                                    </td>
+                                    <td>
+                                        <code>{{ portal[3] if portal[3] else 'N/A' }}</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if portal[8] else 'secondary' }}">
+                                            {{ 'Active' if portal[8] else 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="testPortal({{ portal[0] }})">
+                                                <i class="fas fa-vial"></i>
+                                            </button>
+                                            <a href="{{ url_for('channels', portal_id=portal[0]) }}" class="btn btn-outline-success">
+                                                <i class="fas fa-list"></i>
+                                            </a>
+                                            <a href="{{ url_for('generate_m3u', portal_id=portal[0]) }}" class="btn btn-outline-info">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-server fa-3x text-muted mb-3"></i>
+                        <h5>No Portals Configured</h5>
+                        <p class="text-muted">Add your first IPTV portal to get started</p>
+                        <a href="{{ url_for('add_portal') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add Portal
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Version:</strong> 1.0.0
+                </div>
+                <div class="mb-3">
+                    <strong>Database:</strong> SQLite
+                </div>
+                <div class="mb-3">
+                    <strong>Authentication:</strong> Session-based
+                </div>
+                <div class="mb-3">
+                    <strong>Supported Features:</strong>
+                    <ul class="list-unstyled ms-3 mt-2">
+                        <li><i class="fas fa-check text-success me-2"></i>Portal Name & URL</li>
+                        <li><i class="fas fa-check text-success me-2"></i>MAC Address</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Serial Number</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Device ID & ID2</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Custom Signatures</li>
+                        <li><i class="fas fa-check text-success me-2"></i>M3U Export</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Web Player</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('add_portal') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Portal
+                    </a>
+                    <a href="{{ url_for('portals') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>Manage Portals
+                    </a>
+                    <button class="btn btn-outline-info" onclick="testAllPortals()">
+                        <i class="fas fa-vial me-2"></i>Test All Portals
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Result Modal -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Portal Test Result</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="testResult">
+                <!-- Test result will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testPortal(portalId) {
+    const modal = new bootstrap.Modal(document.getElementById('testModal'));
+    const resultDiv = document.getElementById('testResult');
+    
+    resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Testing portal...</div>';
+    modal.show();
+    
+    fetch(`/test_portal/${portalId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Success!</strong> ${data.message}
+                        ${data.token ? `<br><small>Token: ${data.token.substring(0, 20)}...</small>` : ''}
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Failed!</strong> ${data.message}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Error!</strong> ${error.message}
+                </div>
+            `;
+        });
+}
+
+function testAllPortals() {
+    const modal = new bootstrap.Modal(document.getElementById('testModal'));
+    const resultDiv = document.getElementById('testResult');
+    
+    resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Testing all portals...</div>';
+    modal.show();
+    
+    // This would need to be implemented in the backend
+    setTimeout(() => {
+        resultDiv.innerHTML = `
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Feature coming soon! Test portals individually for now.
+            </div>
+        `;
+    }, 1000);
+}
+
+// Load channel count on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // This would make API calls to get actual channel counts
+    // For now, it's just a placeholder
+});
+</script>
+{% endblock %}

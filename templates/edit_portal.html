@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Portal - IPTV Portal Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Edit Portal: {{ portal.name }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="editPortalForm">
+                    <div class="row">
+                        <!-- Portal Name -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" name="name" value="{{ portal.name }}" placeholder="Portal Name" required>
+                                <label for="name" class="required-field">
+                                    <i class="fas fa-tag me-1"></i>Portal Name
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Portal URL -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="url" class="form-control" id="url" name="url" value="{{ portal.url }}" placeholder="Portal URL" required>
+                                <label for="url" class="required-field">
+                                    <i class="fas fa-link me-1"></i>Portal URL
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- MAC Address -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="mac" name="mac" value="{{ portal.mac }}" placeholder="MAC Address" 
+                                       pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" required>
+                                <label for="mac" class="required-field">
+                                    <i class="fas fa-network-wired me-1"></i>MAC Address
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Serial Number -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="sn" name="sn" value="{{ portal.sn or '' }}" placeholder="Serial Number">
+                                <label for="sn">
+                                    <i class="fas fa-barcode me-1"></i>Serial Number
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Device ID -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="device_id" name="device_id" value="{{ portal.device_id or '' }}" placeholder="Device ID">
+                                <label for="device_id">
+                                    <i class="fas fa-mobile-alt me-1"></i>Device ID
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                <button type="button" class="btn btn-link btn-sm p-0" onclick="generateDeviceId('device_id')">
+                                    <i class="fas fa-sync-alt"></i> Generate New
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Device ID2 -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="device_id2" name="device_id2" value="{{ portal.device_id2 or '' }}" placeholder="Device ID2">
+                                <label for="device_id2">
+                                    <i class="fas fa-tablet-alt me-1"></i>Device ID2
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                <button type="button" class="btn btn-link btn-sm p-0" onclick="generateDeviceId('device_id2')">
+                                    <i class="fas fa-sync-alt"></i> Generate New
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Signature -->
+                    <div class="mb-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="signature" name="signature" value="{{ portal.signature or '' }}" placeholder="Signature">
+                            <label for="signature">
+                                <i class="fas fa-key me-1"></i>Signature
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            <button type="button" class="btn btn-link btn-sm p-0" onclick="generateSignature()">
+                                <i class="fas fa-magic"></i> Regenerate Signature
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Portal Information -->
+                    <div class="alert alert-info">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Created:</strong> {{ portal.created_at }}<br>
+                                <strong>Last Updated:</strong> {{ portal.updated_at }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Portal ID:</strong> #{{ portal.id }}<br>
+                                <strong>Status:</strong> <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                        <div>
+                            <a href="{{ url_for('portal_details', portal_id=portal.id) }}" class="btn btn-info me-2">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-1"></i>Update Portal
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card mt-4 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Danger Zone
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Once you delete a portal, there is no going back. Please be certain.
+                </p>
+                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete()">
+                    <i class="fas fa-trash me-1"></i>Delete This Portal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-trash me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone!
+                </div>
+                <p>Are you sure you want to delete the portal "<strong>{{ portal.name }}</strong>"?</p>
+                <p class="text-muted">All portal data will be permanently removed from the system.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <form method="POST" action="{{ url_for('delete_portal', portal_id=portal.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>Yes, Delete Portal
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Form validation
+document.getElementById('editPortalForm').addEventListener('submit', function(e) {
+    const mac = document.getElementById('mac').value;
+    const macPattern = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+    
+    if (!macPattern.test(mac)) {
+        e.preventDefault();
+        alert('Please enter a valid MAC address format (XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX)');
+        document.getElementById('mac').focus();
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+    submitBtn.disabled = true;
+});
+
+// MAC address formatting
+document.getElementById('mac').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/[^0-9A-Fa-f]/g, '');
+    if (value.length > 12) value = value.substr(0, 12);
+    
+    let formatted = '';
+    for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 2 === 0) formatted += ':';
+        formatted += value[i];
+    }
+    
+    e.target.value = formatted.toUpperCase();
+});
+
+// Confirm delete function
+function confirmDelete() {
+    new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
+}
+
+// Highlight changes
+document.addEventListener('DOMContentLoaded', function() {
+    const originalValues = {};
+    const inputs = document.querySelectorAll('input[type="text"], input[type="url"]');
+    
+    inputs.forEach(input => {
+        originalValues[input.id] = input.value;
+        
+        input.addEventListener('input', function() {
+            if (this.value !== originalValues[this.id]) {
+                this.classList.add('border-warning');
+            } else {
+                this.classList.remove('border-warning');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

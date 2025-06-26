@@ -1,37 +1,279 @@
 {% extends "base.html" %}
 
-{% block title %}Add Portal - IPTV Manager{% endblock %}
-{% block page_title %}Add New Portal{% endblock %}
+{% block title %}Add Portal - IPTV Portal Manager{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-plus-circle me-2"></i>Portal Configuration
-                </h5>
-                <small class="text-muted">Configure your IPTV portal with all authentication parameters</small>
+    <div class="col-lg-8 col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>Add New IPTV Portal
+                </h4>
             </div>
             <div class="card-body">
                 <form method="POST" id="portalForm">
                     <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="name" class="form-label">
-                                <i class="fas fa-tag me-2"></i>Portal Name <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control" id="name" name="name" required 
-                                   placeholder="e.g., My IPTV Portal">
-                            <div class="form-text">Choose a descriptive name for this portal</div>
+                        <!-- Portal Name -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Portal Name" required>
+                                <label for="name" class="required-field">
+                                    <i class="fas fa-tag me-1"></i>Portal Name
+                                </label>
+                            </div>
+                            <div class="form-text">Enter a descriptive name for your portal</div>
+                        </div>
+
+                        <!-- Portal URL -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="url" class="form-control" id="url" name="url" placeholder="Portal URL" required>
+                                <label for="url" class="required-field">
+                                    <i class="fas fa-link me-1"></i>Portal URL
+                                </label>
+                            </div>
+                            <div class="form-text">Full URL to the IPTV portal</div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="url" class="form-label">
-                                <i class="fas fa-link me-2"></i>Portal URL <span class="text-danger">*</span>
-                            </label>
-                            <input type="url" class="form-control" id="url" name="url" required 
-                                   placeholder="http://your-portal-url.com/stalker_portal/c">
-                            <div class="form-text">Complete URL to your IPTV portal (without trailing slash)</div>
+                        <!-- MAC Address -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="mac" name="mac" placeholder="MAC Address" 
+                                       pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" required>
+                                <label for="mac" class="required-field">
+                                    <i class="fas fa-network-wired me-1"></i>MAC Address
+                                </label>
+                            </div>
+                            <div class="form-text">Format: XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX</div>
                         </div>
+
+                        <!-- Serial Number -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="sn" name="sn" placeholder="Serial Number">
+                                <label for="sn">
+                                    <i class="fas fa-barcode me-1"></i>Serial Number
+                                </label>
+                            </div>
+                            <div class="form-text">Optional device serial number</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Device ID -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="device_id" name="device_id" placeholder="Device ID">
+                                <label for="device_id">
+                                    <i class="fas fa-mobile-alt me-1"></i>Device ID
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Leave empty to auto-generate
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2" onclick="generateDeviceId('device_id')">
+                                    <i class="fas fa-sync-alt"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Device ID2 -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="device_id2" name="device_id2" placeholder="Device ID2">
+                                <label for="device_id2">
+                                    <i class="fas fa-tablet-alt me-1"></i>Device ID2
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Leave empty to auto-generate
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2" onclick="generateDeviceId('device_id2')">
+                                    <i class="fas fa-sync-alt"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Signature -->
+                    <div class="mb-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="signature" name="signature" placeholder="Signature">
+                            <label for="signature">
+                                <i class="fas fa-key me-1"></i>Signature
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            Leave empty to auto-generate based on name, URL, and MAC
+                            <button type="button" class="btn btn-link btn-sm p-0 ms-2" onclick="generateSignature()">
+                                <i class="fas fa-magic"></i> Generate Signature
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-info me-2" onclick="previewPortal()">
+                                <i class="fas fa-eye me-1"></i>Preview
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Portal
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Portal Preview Card -->
+        <div class="card mt-4" id="previewCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-eye me-2"></i>Portal Preview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-tag me-1"></i>Portal Name:</h6>
+                        <p class="text-muted" id="previewName">-</p>
+                        
+                        <h6><i class="fas fa-link me-1"></i>Portal URL:</h6>
+                        <p class="text-muted" id="previewUrl">-</p>
+                        
+                        <h6><i class="fas fa-network-wired me-1"></i>MAC Address:</h6>
+                        <p class="text-muted" id="previewMac">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-barcode me-1"></i>Serial Number:</h6>
+                        <p class="text-muted" id="previewSn">-</p>
+                        
+                        <h6><i class="fas fa-mobile-alt me-1"></i>Device ID:</h6>
+                        <p class="text-muted" id="previewDeviceId">-</p>
+                        
+                        <h6><i class="fas fa-tablet-alt me-1"></i>Device ID2:</h6>
+                        <p class="text-muted" id="previewDeviceId2">-</p>
+                        
+                        <h6><i class="fas fa-key me-1"></i>Signature:</h6>
+                        <p class="text-muted" id="previewSignature">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>Field Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-primary">Required Fields</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Portal Name:</strong> A friendly name to identify your portal</li>
+                                <li><strong>Portal URL:</strong> The complete URL of your IPTV service</li>
+                                <li><strong>MAC Address:</strong> Your device's MAC address (required by most IPTV services)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-info">Optional Fields</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Serial Number:</strong> Your device's serial number if required</li>
+                                <li><strong>Device ID:</strong> Primary device identifier</li>
+                                <li><strong>Device ID2:</strong> Secondary device identifier</li>
+                                <li><strong>Signature:</strong> Authentication signature for the portal</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Tip:</strong> Device IDs and signatures can be auto-generated if you leave them empty. 
+                    The signature is generated based on your portal name, URL, and MAC address.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Form validation
+document.getElementById('portalForm').addEventListener('submit', function(e) {
+    const mac = document.getElementById('mac').value;
+    const macPattern = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+    
+    if (!macPattern.test(mac)) {
+        e.preventDefault();
+        alert('Please enter a valid MAC address format (XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX)');
+        document.getElementById('mac').focus();
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+    submitBtn.disabled = true;
+});
+
+// Preview portal function
+function previewPortal() {
+    const name = document.getElementById('name').value || 'Not set';
+    const url = document.getElementById('url').value || 'Not set';
+    const mac = document.getElementById('mac').value || 'Not set';
+    const sn = document.getElementById('sn').value || 'Not set';
+    const deviceId = document.getElementById('device_id').value || 'Will be auto-generated';
+    const deviceId2 = document.getElementById('device_id2').value || 'Will be auto-generated';
+    const signature = document.getElementById('signature').value || 'Will be auto-generated';
+    
+    document.getElementById('previewName').textContent = name;
+    document.getElementById('previewUrl').textContent = url;
+    document.getElementById('previewMac').textContent = mac;
+    document.getElementById('previewSn').textContent = sn;
+    document.getElementById('previewDeviceId').textContent = deviceId;
+    document.getElementById('previewDeviceId2').textContent = deviceId2;
+    document.getElementById('previewSignature').textContent = signature;
+    
+    const previewCard = document.getElementById('previewCard');
+    previewCard.style.display = 'block';
+    previewCard.scrollIntoView({ behavior: 'smooth' });
+}
+
+// MAC address formatting
+document.getElementById('mac').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/[^0-9A-Fa-f]/g, '');
+    if (value.length > 12) value = value.substr(0, 12);
+    
+    let formatted = '';
+    for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 2 === 0) formatted += ':';
+        formatted += value[i];
+    }
+    
+    e.target.value = formatted.toUpperCase();
+});
+
+// Auto-fill example data (for testing)
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('example') === 'true') {
+        document.getElementById('name').value = 'Example Portal';
+        document.getElementById('url').value = 'http://example.com:8080/portal.php';
+        document.getElementById('mac').value = '00:1A:79:00:00:01';
+        document.getElementById('sn').value = 'SN123456789';
+    }
+});
+</script>
+{% endblock %}
